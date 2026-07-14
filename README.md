@@ -2,6 +2,11 @@
 
 **If you published this benchmark's numbers, would they survive an adversarial reviewer?**
 
+<p align="center">
+  <img src="docs/demo.gif" width="820"
+       alt="Terminal demo: eval-integrity shows the weak fixture's expected-result.json (verdict not_publish_ready), then a seven-dimension roll-up table comparing the weak, hardened, and publish-ready calibration fixtures — ABSENT/PARTIAL/PRESENT per dimension mapping to verdicts not_publish_ready, gradable_with_caveats, and publish_ready." />
+</p>
+
 Most benchmark repos have a runner and a leaderboard but lack the integrity scaffolding that makes a published score mean what it appears to mean. `eval-integrity` is a read-only auditor for LLM evaluation and benchmark repos. It checks for that scaffolding across seven dimensions, names what is missing, rates whether each gap *invalidates a published number* or merely *hardens credibility*, and emits both a markdown report and a machine-readable `result.json`.
 
 It never edits your benchmark, re-runs an eval, or touches a leaderboard. It reports and offers fixes; applying them is your call.
