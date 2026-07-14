@@ -1,0 +1,33 @@
+name: eval
+
+# Public-corpus CI. The sequestered split is never configured here, and an
+# explicit guard FAILS the job if it is — because this workflow could otherwise
+# surface split content. Runs on the public set only.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"   # runtime pinned
+
+      - name: Refuse to run with the sequestered split configured
+        run: |
+          if [ -n "${ACME_SEQUESTERED_DIR:-}" ]; then
+            echo "ACME_SEQUESTERED_DIR is set in public CI — refusing (would risk a split leak)"
+            exit 1
+          fi
+
+      - run: pip install -e .
+      - run: pytest -q                 # includes the exclusion + ordering tripwires
+      - run: python -m eval.run --seed 11
+      - run: python -m eval.aggregate
+
+      - name: Assert no publish path is gitignored
+        run: python -c "from scripts.publish import assert_no_publish_path_gitignored as a; a()"

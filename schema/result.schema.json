@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/conorbronsdon/eval-integrity/schema/result.schema.json",
+  "title": "eval-integrity audit result",
+  "description": "Machine-readable result of a benchmark-credibility audit. The skill writes one of these alongside the markdown report so audits can be diffed over time (CI trend-tracking). Sub-check statuses roll up to a dimension status; dimension statuses roll up to the verdict.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["audited_commit", "date", "verdict", "dimensions"],
+  "properties": {
+    "audited_commit": {
+      "type": "string",
+      "description": "Full or short git SHA the audit was run against. Use 'uncommitted' if the working tree was dirty."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO date (YYYY-MM-DD) the audit was produced.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "repo": {
+      "type": "string",
+      "description": "Path or name of the audited benchmark repo. Optional context, not load-bearing."
+    },
+    "verdict": {
+      "type": "string",
+      "description": "Overall roll-up. publish_ready = no INVALIDATING gaps. not_publish_ready = one or more INVALIDATING gaps. gradable_with_caveats = no INVALIDATING gaps but HARDENING gaps remain (numbers are defensible, credibility could be higher).",
+      "enum": ["publish_ready", "not_publish_ready", "gradable_with_caveats"]
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "One entry per audit dimension. Keys are the fixed dimension names below.",
+      "additionalProperties": false,
+      "required": [
+        "pre-registration",
+        "contamination",
+        "holdout-hygiene",
+        "judge-validity",
+        "statistical-honesty",
+        "reproducibility",
+        "leaderboard-publishing"
+      ],
+      "properties": {
+        "pre-registration": { "$ref": "#/definitions/dimension" },
+        "contamination": { "$ref": "#/definitions/dimension" },
+        "holdout-hygiene": { "$ref": "#/definitions/dimension" },
+        "judge-validity": { "$ref": "#/definitions/dimension" },
+        "statistical-honesty": { "$ref": "#/definitions/dimension" },
+        "reproducibility": { "$ref": "#/definitions/dimension" },
+        "leaderboard-publishing": { "$ref": "#/definitions/dimension" }
+      }
+    }
+  },
+  "definitions": {
+    "status": {
+      "type": "string",
+      "description": "PRESENT = implemented AND enforced (code or test). PARTIAL = documented or half-built, not enforced. ABSENT = no evidence. N/A = the dimension or sub-check does not apply (e.g. judge validity on a benchmark with no LLM judge).",
+      "enum": ["PRESENT", "PARTIAL", "ABSENT", "N/A"]
+    },
+    "severity": {
+      "type": "string",
+      "description": "Consequence of the gap. INVALIDATING = a reviewer can throw out a published number. HARDENING = weakens credibility, does not invalidate. NONE = no gap (status PRESENT or N/A).",
+      "enum": ["INVALIDATING", "HARDENING", "NONE"]
+    },
+    "evidence": {
+      "type": "object",
+      "description": "One piece of evidence: a file, an optional line, and a note. Absence evidence uses the searched-locations note with file set to the search scope.",
+      "additionalProperties": false,
+      "required": ["file", "note"],
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "Repo-relative path the evidence lives in, or a search scope for absence findings (e.g. 'searched: run_eval.py, .github/, docs/')."
+        },
+        "line": {
+          "type": ["integer", "null"],
+          "description": "1-based line number, or null when not line-specific (whole-file, directory, or absence evidence).",
+          "minimum": 1
+        },
+        "note": {
+          "type": "string",
+          "description": "What this evidence shows. For ABSENT, state what was searched and found nothing — a grep miss alone is not enough; note the concept search."
+        }
+      }
+    },
+    "sub_check": {
+      "type": "object",
+      "description": "One individually-scoreable check within a dimension. This granularity is deliberate: a dimension is a roll-up of its sub-checks, not a single verdict.",
+      "additionalProperties": false,
+      "required": ["id", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable sub-check ID (e.g. 'PR1', 'CT3'). Matches the IDs in the dimension's methodology file.",
+          "pattern": "^[A-Z]{2}[0-9]+$"
+        },
+        "status": { "$ref": "#/definitions/status" },
+        "severity": { "$ref": "#/definitions/severity" },
+        "evidence": {
+          "type": "array",
+          "description": "Evidence backing the status. Mandatory for any non-PRESENT status: cite file:line or state the concept search that found nothing.",
+          "items": { "$ref": "#/definitions/evidence" }
+        },
+        "fix": {
+          "type": ["string", "null"],
+          "description": "Concrete change that would close the gap (file to add, guard to write, test to add). null when status is PRESENT or N/A."
+        }
+      }
+    },
+    "dimension": {
+      "type": "object",
+      "description": "A dimension result: the rolled-up status plus the sub-checks it was computed from.",
+      "additionalProperties": false,
+      "required": ["status", "sub_checks"],
+      "properties": {
+        "status": { "$ref": "#/definitions/status" },
+        "severity": {
+          "$ref": "#/definitions/severity",
+          "description": "Worst severity across the dimension's sub-check gaps. INVALIDATING if any sub-check is an INVALIDATING gap."
+        },
+        "sub_checks": {
+          "type": "array",
+          "description": "The individually-scored sub-checks. A dimension is PRESENT only when every applicable sub-check is PRESENT; PARTIAL when some are; ABSENT when none are.",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/sub_check" }
+        }
+      }
+    }
+  }
+}

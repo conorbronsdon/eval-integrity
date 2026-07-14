@@ -1,0 +1,11 @@
+# Raw transcripts and per-evaluation artifacts can contain holdout scenario text
+# and ground truth. Never commit them — a committed transcript leaks the holdout.
+data/results/artifacts/
+data/results/transcripts/
+data/results/traces/
+
+# Local private holdout mirror, if one is ever synced into the tree by mistake.
+data/holdout/
+
+__pycache__/
+*.pyc

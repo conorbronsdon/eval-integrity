@@ -1,0 +1,15 @@
+[project]
+name = "acme-tool-bench"
+version = "0.1.0"
+description = "Synthetic fixture benchmark for the eval-integrity skill (publish-ready)."
+requires-python = "==3.11.*"
+dependencies = [
+    "numpy==1.26.4",
+    "pytest==8.2.0",
+]
+
+# Environment fully pinned: exact == pins here and a committed uv.lock resolve the
+# same versions on any machine. Runtime pinned in .github/workflows/eval.yml.
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

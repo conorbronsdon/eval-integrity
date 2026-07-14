@@ -1,0 +1,86 @@
+{
+  "audited_commit": "FIXTURE",
+  "date": "2026-07-13",
+  "repo": "fixtures/publish-ready-benchmark (acme-tool-bench)",
+  "verdict": "publish_ready",
+  "dimensions": {
+    "pre-registration": {
+      "status": "PRESENT",
+      "severity": "NONE",
+      "sub_checks": [
+        {"id": "PR1", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/pre_registration.py", "line": null, "note": "write_pre_registration records models, corpus_sha256, sequestered_split, judge_panel, seed, temperatures — all five fields — before the first call."}], "fix": null},
+        {"id": "PR2", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/pre_registration.py", "line": null, "note": "canonical_corpus_hash() hashes the sorted, canonically serialized whole scenario set (sha256 over json.dumps(sorted(...), sort_keys=True)) — a dropped or reordered scenario changes the digest."}], "fix": null},
+        {"id": "PR3", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "tests/test_integrity.py", "line": null, "note": "test_prereg_written_before_first_call stubs the first call and asserts pre_registration.json exists on disk at that moment — the ordering is guarded by a test."}], "fix": null},
+        {"id": "PR4", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/pre_registration.py", "line": null, "note": "correction_policy: append-only in the prereg, run_id + timestamp make each run self-describing, and docs/methodology.md states the no-silent-retraction policy."}], "fix": null}
+      ]
+    },
+    "contamination": {
+      "status": "PRESENT",
+      "severity": "NONE",
+      "sub_checks": [
+        {"id": "CT1", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "scripts/generate_data.py", "line": null, "note": "assert_author_allowed is a hard assert called in make_scenario; a scenario whose author is a contestant fails generation."}], "fix": null},
+        {"id": "CT2", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "scripts/generate_data.py", "line": null, "note": "family_key() normalizes author and contestants to a vendor+base key before the membership check, so a sibling snapshot (e.g. acme-tool-1-0301) is also barred."}], "fix": null},
+        {"id": "CT3", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "data/public/scenarios.json", "line": null, "note": "Every scenario carries an immutable author_model stamped at generation."}], "fix": null},
+        {"id": "CT4", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "scripts/generate_data.py", "line": null, "note": "provenance is 'synthetic' on every scenario; a synthetic corpus needs no scraped-source contamination check."}], "fix": null},
+        {"id": "CT5", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "docs/methodology.md", "line": null, "note": "CONCEPT SEARCH: the holdout is named the 'sequestered split' here — a grep for 'holdout' misses it. The split is run and scripts/publish.py::write_gap_table publishes a per-model public-vs-sequestered gap as the overfitting tripwire."}], "fix": null}
+      ]
+    },
+    "holdout-hygiene": {
+      "status": "PRESENT",
+      "severity": "NONE",
+      "sub_checks": [
+        {"id": "HO1", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": ".gitignore", "line": null, "note": "CONCEPT SEARCH: 'sequestered split' = holdout. artifacts/, transcripts/, traces/, .checkpoint.json, and data/sequestered/ are gitignored with a comment naming the split-leak reason."}], "fix": null},
+        {"id": "HO2", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": ".github/workflows/eval.yml", "line": null, "note": "An explicit 'Refuse to run with the sequestered split configured' step exits 1 if ACME_SEQUESTERED_DIR is set in public CI; no artifact upload is present."}], "fix": null},
+        {"id": "HO3", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/pre_registration.py", "line": null, "note": "sequestered_block() returns {sha256, n_scenarios} only — no scenario IDs, no per-scenario index."}], "fix": null},
+        {"id": "HO4", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "The published board carries per-model {score, ci_low, ci_high} and band membership only; the gap table is per-model aggregates. No split scenario IDs, text, or per-scenario scores are published."}], "fix": null},
+        {"id": "HO5", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/run.py", "line": null, "note": "Scenarios are referenced by id in rows and stubs; no error path or log echoes scenario prompt text or ground truth. Doc examples are synthetic."}], "fix": null}
+      ]
+    },
+    "judge-validity": {
+      "status": "PRESENT",
+      "severity": "NONE",
+      "sub_checks": [
+        {"id": "JV1", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/scoring.py", "line": null, "note": "call_judge returns resolved_model, persisted per judge in score_transcript and per row in eval/run.py."}], "fix": null},
+        {"id": "JV2", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/scoring.py", "line": null, "note": "krippendorff_alpha() computes a chance-corrected inter-judge reliability (1 - Do/De), reported per docs/methodology.md — not a raw within-X rate."}], "fix": null},
+        {"id": "JV3", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/scoring.py", "line": null, "note": "acme-judge-1 shares the acme lab with contestant acme-tool-1; same_lab_recompute() reports the ranking with acme judges dropped. Guarded conceptually by the same-lab table in scripts/publish.py."}], "fix": null},
+        {"id": "JV4", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/scoring.py", "line": null, "note": "length_bias_slope() runs an OLS of score on answer_len; answer_len is recorded per row in eval/run.py."}], "fix": null},
+        {"id": "JV5", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/scoring.py", "line": null, "note": "RUBRIC_CRITERIA (correctness, efficiency, safety) are scored independently per judge and aggregated after scoring — atomic, not one holistic score."}], "fix": null},
+        {"id": "JV6", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "docs/methodology.md", "line": null, "note": "The judging and statistics claims (atomic rubric, Krippendorff alpha, macro aggregation, fixed-seed scenario bootstrap, pass^k) each trace accurately to eval/scoring.py and eval/aggregate.py."}], "fix": null}
+      ]
+    },
+    "statistical-honesty": {
+      "status": "PRESENT",
+      "severity": "NONE",
+      "sub_checks": [
+        {"id": "ST1", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "bootstrap_ci() is a fixed-seed (1234) bootstrap; the board publishes ci_low/ci_high per model."}], "fix": null},
+        {"id": "ST2", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "bootstrap_ci resamples scenario ids, not correlated per-run rows."}], "fix": null},
+        {"id": "ST3", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "aggregate() computes macro (mean of per-scenario means); docs/methodology.md states 'aggregation is macro'."}], "fix": null},
+        {"id": "ST4", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "pass_hat_k() computes pass^k (all k runs succeed); docs/methodology.md defines it and distinguishes it from pass@k."}], "fix": null},
+        {"id": "ST5", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/run.py", "line": null, "note": "random.seed(args.seed) set and recorded in the pre-registration; the temperature-0 non-bit-for-bit caveat is stated in README and methodology."}], "fix": null},
+        {"id": "ST6", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "rank_bands() clusters models whose CIs overlap into the same band instead of publishing a strict order — the multiple-comparison guard."}], "fix": null}
+      ]
+    },
+    "reproducibility": {
+      "status": "PRESENT",
+      "severity": "NONE",
+      "sub_checks": [
+        {"id": "RE1", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "README.md", "line": null, "note": "A single documented run sequence with inputs pinned to data/public/, plus an explicit 'reproducible for pinned corpus and seed; bounded not bit-for-bit across provider snapshots' caveat."}], "fix": null},
+        {"id": "RE2", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/resume.py", "line": null, "note": "load_completed/mark_completed checkpoint completed (model, scenario) keys (resume), and assert_within_budget enforces a cost cap."}], "fix": null},
+        {"id": "RE3", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "pyproject.toml", "line": null, "note": "requires-python == 3.11.* with == dependency pins and a committed uv.lock; setup-python pinned to 3.11 in CI."}], "fix": null}
+      ]
+    },
+    "leaderboard-publishing": {
+      "status": "PRESENT",
+      "severity": "NONE",
+      "sub_checks": [
+        {"id": "LB1", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "exclude_non_contestants drops NULL_AGENT; tests/test_integrity.py::test_null_agent_excluded is the tripwire."}], "fix": null},
+        {"id": "LB2", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "exclude_non_contestants filters is_sequestered rows before the public aggregate; test_sequestered_rows_excluded guards it."}], "fix": null},
+        {"id": "LB3", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "exclude_non_contestants keeps only config == 'default'; test_non_default_config_excluded guards it."}], "fix": null},
+        {"id": "LB4", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "tests/test_integrity.py", "line": null, "note": "Three tripwire tests (null, sequestered, non-default) each fail if the excluded row reaches the board."}], "fix": null},
+        {"id": "LB5", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "eval/aggregate.py", "line": null, "note": "assert_complete() raises SystemExit when an expected model is missing; test_completeness_gate_blocks_partial_board guards it."}], "fix": null},
+        {"id": "LB6", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "scripts/publish.py", "line": null, "note": "assert_no_publish_path_gitignored runs git check-ignore over every PUBLISH_PATH before git add; test_no_publish_path_gitignored and a CI step both enforce it."}], "fix": null},
+        {"id": "LB7", "status": "PRESENT", "severity": "NONE", "evidence": [{"file": "scripts/publish.py", "line": null, "note": "The three doc-promised surfaces (leaderboard.json, gap_table.json, same_lab_table.json) are each written by a pipeline step and committed by the publish step; docs/methodology.md names exactly these three."}], "fix": null}
+      ]
+    }
+  }
+}

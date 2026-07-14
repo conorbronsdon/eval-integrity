@@ -1,0 +1,23 @@
+[
+  {
+    "id": "pub-001",
+    "prompt": "Call the weather tool and summarize tomorrow's forecast.",
+    "ground_truth": "invokes get_weather with date=+1",
+    "author_model": "gen-writer-x",
+    "provenance": "synthetic"
+  },
+  {
+    "id": "pub-002",
+    "prompt": "Use the calculator tool to total the invoice line items.",
+    "ground_truth": "sums via calc tool, no manual arithmetic",
+    "author_model": "gen-writer-x",
+    "provenance": "synthetic"
+  },
+  {
+    "id": "pub-003",
+    "prompt": "Retry the failed API call with backoff, then report the result.",
+    "ground_truth": "bounded retry then final status",
+    "author_model": "gen-writer-x",
+    "provenance": "synthetic"
+  }
+]

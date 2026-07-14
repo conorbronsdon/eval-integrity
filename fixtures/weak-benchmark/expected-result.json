@@ -1,0 +1,344 @@
+{
+  "audited_commit": "FIXTURE",
+  "date": "2026-07-13",
+  "repo": "fixtures/weak-benchmark (acme-agent-bench)",
+  "verdict": "not_publish_ready",
+  "dimensions": {
+    "pre-registration": {
+      "status": "ABSENT",
+      "severity": "INVALIDATING",
+      "sub_checks": [
+        {
+          "id": "PR1",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "searched: run_eval.py, README.md, repo root", "line": null, "note": "No pre-registration artifact of any kind. run_eval.py defines the run only by the in-file MODELS_UNDER_TEST list; nothing records corpus identity, judge panel, seeds, or temperatures before the run."}
+          ],
+          "fix": "Emit a pre_registration.json at the top of main() recording models, corpus hash, judge panel, seeds, and temperatures before the first call_model()."
+        },
+        {
+          "id": "PR2",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "searched: run_eval.py, data/", "line": null, "note": "No hashing at all (no sha256/hashlib). The corpus is referenced as data/scenarios.json by path only."}
+          ],
+          "fix": "Hash the canonically serialized scenario set (sha256 over json.dumps(scenarios, sort_keys=True)) and store it as the corpus id."
+        },
+        {
+          "id": "PR3",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No pre-registration is written, so there is no write-before-run ordering and no test guarding it. No tests dir exists."}
+          ],
+          "fix": "After adding PR1, add a test that dispatches the first model through a stub asserting the pre-registration file already exists on disk."
+        },
+        {
+          "id": "PR4",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "main() overwrites data/leaderboard.json in place with no manifest, run id, or timestamp. README explicitly says 'We re-ran a few times and picked the run that best reflected the agent' — textbook silent re-run / cherry-pick."},
+            {"file": "README.md", "line": null, "note": "'We re-ran a few times and picked the run' states the anti-pattern outright."}
+          ],
+          "fix": "Add an append-only-correction policy and write a per-run manifest (timestamp, run id, pre-registration path + hash); never overwrite the board in place."
+        }
+      ]
+    },
+    "contamination": {
+      "status": "ABSENT",
+      "severity": "INVALIDATING",
+      "sub_checks": [
+        {
+          "id": "CT1",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No author/contestant separation. There is no author record at all and no assert barring an author from competing."}
+          ],
+          "fix": "Record an author per scenario and add a hard assert in the generation path that fails if the author family-matches any contestant."
+        },
+        {
+          "id": "CT2",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No guard exists, so there is no family-aware matching. (The judge acme-large-v2 is also a contestant, which a family-aware guard would catch.)"}
+          ],
+          "fix": "After adding CT1, normalize author and contestant ids to a family key before the membership check; add a sibling-snapshot test."
+        },
+        {
+          "id": "CT3",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "data/scenarios.json", "line": null, "note": "Scenario records carry id/prompt/expected/ground_truth but no author_model field. Authorship is not recorded anywhere."}
+          ],
+          "fix": "Stamp an immutable author_model field on each scenario at generation time."
+        },
+        {
+          "id": "CT4",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "searched: README.md, data/scenarios.json", "line": null, "note": "Provenance unstated. Nothing says whether scenarios are synthetic or scraped, and there is no contamination/overlap check."}
+          ],
+          "fix": "State corpus provenance in the README; if scraped, add and report an n-gram overlap check against known public sources."
+        },
+        {
+          "id": "CT5",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "searched: run_eval.py, data/, README.md", "line": null, "note": "No holdout. The full scenario set including ground_truth is committed to data/scenarios.json, so the public corpus is fully exposed with no private set to catch overfitting."}
+          ],
+          "fix": "Stand up a private holdout drawn from outside the repo, run it each cycle, and publish a per-model public/holdout/gap row."
+        }
+      ]
+    },
+    "holdout-hygiene": {
+      "status": "N/A",
+      "severity": "NONE",
+      "sub_checks": [
+        {
+          "id": "HO1",
+          "status": "N/A",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "searched: repo root, data/", "line": null, "note": "No holdout exists (see contamination CT5), so holdout hygiene does not apply. There is no .gitignore, but the only data is the public corpus, which is legitimately committed."}
+          ],
+          "fix": null
+        },
+        {"id": "HO2", "status": "N/A", "severity": "NONE", "evidence": [{"file": "searched: repo root", "line": null, "note": "No CI and no holdout — nothing to leak."}], "fix": null},
+        {"id": "HO3", "status": "N/A", "severity": "NONE", "evidence": [{"file": "searched: repo root", "line": null, "note": "No pre-registration and no holdout."}], "fix": null},
+        {"id": "HO4", "status": "N/A", "severity": "NONE", "evidence": [{"file": "data/leaderboard.json", "line": null, "note": "Published board carries per-model aggregates only; no holdout exists to leak."}], "fix": null},
+        {"id": "HO5", "status": "N/A", "severity": "NONE", "evidence": [{"file": "run_eval.py", "line": null, "note": "No holdout, so error paths cannot leak holdout content."}], "fix": null}
+      ]
+    },
+    "judge-validity": {
+      "status": "ABSENT",
+      "severity": "INVALIDATING",
+      "sub_checks": [
+        {
+          "id": "JV1",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "judge() and call_model() record no resolved/served model. The judge is a hardcoded slug JUDGE_MODEL with no capture of what the provider actually served."}
+          ],
+          "fix": "Read the served/resolved model id from each judge response and persist it in the judge artifact and results row."
+        },
+        {
+          "id": "JV2",
+          "status": "N/A",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "Single judge (JUDGE_MODEL), so inter-judge agreement does not apply."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "JV3",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "JUDGE_MODEL is acme-large-v2, which is also a contestant in MODELS_UNDER_TEST and the top-ranked one. No same-lab robustness check recomputes the board with that judge excluded."},
+            {"file": "README.md", "line": null, "note": "README states acme-large-v2 is both the strongest model and the judge; it also tops the leaderboard."}
+          ],
+          "fix": "Add a same-lab check recomputing rankings with same-lab judges dropped; at minimum, do not use a contestant as its own judge."
+        },
+        {
+          "id": "JV4",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No length/verbosity analysis; judge() returns a scalar with no length control."}
+          ],
+          "fix": "Add a length-vs-score regression over scored answers and report the slope."
+        },
+        {
+          "id": "JV5",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "judge() produces one holistic 0-1 score with no rubric criteria; README confirms 'a single 0-1 quality score'. No atomic per-criterion decomposition."}
+          ],
+          "fix": "Decompose the rubric into independently-scored atomic criteria and aggregate after scoring."
+        },
+        {
+          "id": "JV6",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "searched: README.md", "line": null, "note": "No methodology doc with load-bearing scoring claims to trace. The README's one-line judging description matches the trivial code, but there is no documented scoring semantics to verify."}
+          ],
+          "fix": "Write a methodology section describing the scoring semantics and trace each load-bearing claim to its implementing code."
+        }
+      ]
+    },
+    "statistical-honesty": {
+      "status": "ABSENT",
+      "severity": "INVALIDATING",
+      "sub_checks": [
+        {
+          "id": "ST1",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "board[model] = sum(scores)/len(scores) is a bare point estimate. No bootstrap, no confidence interval, and the ranking is built from 3 scenarios."}
+          ],
+          "fix": "Add a fixed-seed bootstrap over scenarios producing ci_low/ci_high for each headline number and publish the intervals."
+        },
+        {
+          "id": "ST2",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No bootstrap exists, so there is no resampling unit at all."}
+          ],
+          "fix": "After adding ST1, resample at the scenario level so the CI reflects scenario-level uncertainty."
+        },
+        {
+          "id": "ST3",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "searched: README.md, run_eval.py", "line": null, "note": "Aggregation is a plain mean over scenarios with one run each; micro vs macro is neither stated nor meaningful here, and nothing documents the choice."}
+          ],
+          "fix": "State the aggregation level in a methodology section (macro/per-scenario preferred when run counts are unequal)."
+        },
+        {
+          "id": "ST4",
+          "status": "N/A",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No pass@k / pass^k reliability metric is reported (single run per scenario)."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "ST5",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "searched: run_eval.py", "line": null, "note": "No seed, no random_state, no temperature recorded. Non-determinism is neither controlled nor acknowledged."}
+          ],
+          "fix": "Set and record all seeds in the run artifact; add a caveat where non-determinism is irreducible."
+        },
+        {
+          "id": "ST6",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "README.md", "line": null, "note": "A strict 1-2-3 ranking is published from 3 scenarios with no CIs and no rank bands; multiple-comparison / noise risk is unacknowledged."}
+          ],
+          "fix": "Cluster models into rank bands when their CIs overlap and gate ranking publication on a minimum scenario count."
+        }
+      ]
+    },
+    "reproducibility": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "RE1",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "README.md", "line": null, "note": "A single run command is documented (python run_eval.py), but inputs are not pinned (runs against whatever is in data/), no seed is set, and there is no determinism caveat."}
+          ],
+          "fix": "Document a re-run command with pinned inputs and seeds, plus a 'reproducible here / bounded there' note for irreducible non-determinism."
+        },
+        {
+          "id": "RE2",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "An agent eval that calls models per scenario has no cost cap and no resume/checkpoint; a crash forces a full re-run."}
+          ],
+          "fix": "Add a resume/checkpoint path keyed on completed scenarios and a cost cap that halts before exceeding a budget."
+        },
+        {
+          "id": "RE3",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "README.md", "line": null, "note": "Setup is 'pip install openai pandas' with no versions and no lockfile; runtime is unpinned."}
+          ],
+          "fix": "Commit a lockfile pinning all dependencies and pin the runtime version."
+        }
+      ]
+    },
+    "leaderboard-publishing": {
+      "status": "ABSENT",
+      "severity": "INVALIDATING",
+      "sub_checks": [
+        {
+          "id": "LB1",
+          "status": "ABSENT",
+          "severity": "INVALIDATING",
+          "evidence": [
+            {"file": "searched: run_eval.py, data/leaderboard.json", "line": null, "note": "No null-agent / do-nothing baseline exists, so there is no floor calibration proving the metric rewards real capability."}
+          ],
+          "fix": "Add a deterministic null-agent provider, run it each cycle, and exclude it from the published board while checking it scores near the floor."
+        },
+        {
+          "id": "LB2",
+          "status": "N/A",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No holdout exists, so there are no holdout rows to split out."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "LB3",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "Runs are not tagged by config; nothing would keep a smoke/partial run out of the aggregate. No non-default runs exist yet, so this is defense-for-the-future."}
+          ],
+          "fix": "Tag runs by config and restrict the public aggregate to default-config runs."
+        },
+        {
+          "id": "LB4",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "searched: repo root", "line": null, "note": "No tests dir at all, so no tripwire tests guard any exclusion. (Nothing is excluded, so there is nothing to guard yet — but the guards do not exist.)"}
+          ],
+          "fix": "Once exclusions exist (LB1/LB2/LB3), add tests that fail if a null-agent/holdout/non-default row reaches the board."
+        },
+        {
+          "id": "LB5",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No completeness gate; if a model errored, main() would publish a board silently missing it."}
+          ],
+          "fix": "Add a publish gate reading a failed-model count that blocks or marks an incomplete board."
+        },
+        {
+          "id": "LB6",
+          "status": "N/A",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "run_eval.py", "line": null, "note": "No CI publish/commit step to check; the board is written directly to data/leaderboard.json, which is a committable path (no .gitignore). git check-ignore is moot with no publish git-add."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "LB7",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "README.md", "line": null, "note": "The README shows a ranked leaderboard table (Rank/Agent/Score), but run_eval.py writes only a flat {model: score} dict to data/leaderboard.json with no ranks. The rendered table is hand-maintained, not produced by the pipeline."}
+          ],
+          "fix": "Generate the ranked table from the pipeline output, or stop presenting a hand-maintained table as the published board."
+        }
+      ]
+    }
+  }
+}

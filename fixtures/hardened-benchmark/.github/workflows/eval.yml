@@ -1,0 +1,22 @@
+name: eval
+
+# Runs tests and a smoke eval on the PUBLIC corpus only. The holdout is never
+# configured here — but note there is no explicit guard that FAILS the job if a
+# holdout dir/env is set, so this relies on convention rather than enforcement.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"   # runtime pinned in CI
+      - run: pip install -e .
+      - run: pytest -q
+      - run: python -m eval.run --seed 7
+      - run: python -m eval.aggregate

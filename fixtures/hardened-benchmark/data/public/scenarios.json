@@ -1,0 +1,23 @@
+[
+  {
+    "id": "pub-001",
+    "prompt": "Fix the null-pointer dereference in parse().",
+    "ground_truth": "guard before deref",
+    "author_model": "gen-writer-x",
+    "provenance": "synthetic"
+  },
+  {
+    "id": "pub-002",
+    "prompt": "Make the retry loop respect the max-attempts cap.",
+    "ground_truth": "break at cap",
+    "author_model": "gen-writer-x",
+    "provenance": "synthetic"
+  },
+  {
+    "id": "pub-003",
+    "prompt": "Close the file handle on the error path.",
+    "ground_truth": "use context manager",
+    "author_model": "gen-writer-x",
+    "provenance": "synthetic"
+  }
+]

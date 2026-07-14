@@ -1,0 +1,20 @@
+[
+  {
+    "id": "sc-001",
+    "prompt": "Write a function that reverses a linked list.",
+    "expected": "iterative pointer swap",
+    "ground_truth": "def reverse(head): ..."
+  },
+  {
+    "id": "sc-002",
+    "prompt": "Fix the off-by-one error in this loop.",
+    "expected": "range end adjusted",
+    "ground_truth": "for i in range(n): ..."
+  },
+  {
+    "id": "sc-003",
+    "prompt": "Add input validation to the parser.",
+    "expected": "guards on null and type",
+    "ground_truth": "if not isinstance(x, str): raise ..."
+  }
+]

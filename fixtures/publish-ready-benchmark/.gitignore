@@ -1,0 +1,16 @@
+# Raw transcripts and per-evaluation artifacts can carry sequestered-split text
+# and ground truth. Never commit them — a committed transcript leaks the split.
+data/results/artifacts/
+data/results/transcripts/
+data/results/traces/
+data/results/.checkpoint.json
+
+# The sequestered split lives OUTSIDE the repo; this guards an accidental sync.
+data/sequestered/
+
+# NOTE: the published surfaces (leaderboard.json, gap_table.json,
+# same_lab_table.json) are deliberately NOT ignored — the publish step commits
+# them, and tests/test_integrity.py::test_no_publish_path_gitignored enforces it.
+
+__pycache__/
+*.pyc

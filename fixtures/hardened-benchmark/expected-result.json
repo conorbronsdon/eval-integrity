@@ -1,0 +1,374 @@
+{
+  "audited_commit": "FIXTURE",
+  "date": "2026-07-13",
+  "repo": "fixtures/hardened-benchmark (acme-code-eval)",
+  "verdict": "gradable_with_caveats",
+  "dimensions": {
+    "pre-registration": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "PR1",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/pre_registration.py", "line": null, "note": "write_pre_registration records models_under_test, corpus hashes, holdout_set, judge_panel, seed, and temperatures — all five fields — and is called from eval/run.py before the first model call."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "PR2",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/pre_registration.py", "line": null, "note": "per_file_hashes() hashes each corpus file separately; there is no canonical whole-corpus sha256, so a dropped scenario or reordering of the set is not detected."}
+          ],
+          "fix": "Replace per-file hashing with a sha256 over json.dumps(scenarios, sort_keys=True) as the corpus id."
+        },
+        {
+          "id": "PR3",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/run.py", "line": null, "note": "write_pre_registration() is called before the scenario loop (correct order), but no test asserts the file exists on disk at first dispatch — tests/ has no ordering test."}
+          ],
+          "fix": "Add a test that dispatches the first model through a stub asserting pre_registration.json already exists."
+        },
+        {
+          "id": "PR4",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/pre_registration.py", "line": null, "note": "The prereg carries a run_id and timestamp (self-describing), but no governance/docs section states a no-silent-retraction / append-only-correction policy."}
+          ],
+          "fix": "Add a governance section committing to append-only corrections; link each published run to its pre-registration by path + hash."
+        }
+      ]
+    },
+    "contamination": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "CT1",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "scripts/generate_data.py", "line": null, "note": "assert_author_allowed() is a hard assert called in make_scenario(); a scenario whose author is a contestant fails generation."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "CT2",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "scripts/generate_data.py", "line": null, "note": "assert_author_allowed uses exact-string membership (author not in contestants); it is not family-aware, so a sibling snapshot of the author would slip through. HARDENING here because the author (gen-writer-x) has no contestant siblings."}
+          ],
+          "fix": "Normalize author and contestant ids to a family key before the membership check; add a sibling-snapshot test."
+        },
+        {
+          "id": "CT3",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "data/public/scenarios.json", "line": null, "note": "Every scenario carries author_model, stamped at generation in make_scenario()."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "CT4",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "scripts/generate_data.py", "line": null, "note": "provenance is stamped 'synthetic' on each scenario and echoed in data/public/scenarios.json; a synthetic corpus needs no scraped-source contamination check (that check is N/A)."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "CT5",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/run.py", "line": null, "note": "HOLDOUT_DIR is None: the holdout mechanism exists (pre_registration.holdout_block, gitignored holdout path) but no holdout run is executed and no per-model public/holdout/gap row is published. docs/methodology.md describes the gap table as intent only."}
+          ],
+          "fix": "Wire the holdout run (set HOLDOUT_DIR to a private path), compute the public-vs-holdout gap per model, and publish it."
+        }
+      ]
+    },
+    "holdout-hygiene": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "HO1",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": ".gitignore", "line": null, "note": "artifacts/, transcripts/, and traces/ under data/results/ are gitignored with a comment naming the holdout-leak reason; data/holdout/ is also ignored."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "HO2",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": ".github/workflows/eval.yml", "line": null, "note": "CI runs on the public corpus and never sets a holdout dir, but there is no explicit step that FAILS the job if a holdout env/dir is configured; it relies on convention. No artifact upload is present, which limits the exposure."}
+          ],
+          "fix": "Add a CI step asserting the holdout env/dir is unset before any run that could upload artifacts, exiting non-zero if set."
+        },
+        {
+          "id": "HO3",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/pre_registration.py", "line": null, "note": "holdout_block() returns {sha256, n_scenarios} only — no scenario IDs, no per-scenario index."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "HO4",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "The published leaderboard carries per-model {score, ci_low, ci_high} only; no holdout scenario IDs, text, ground truth, or per-scenario scores reach the published file."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "HO5",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/run.py", "line": null, "note": "Scenarios are referenced by id in rows and stubs; no error path or log statement echoes scenario prompt text or ground truth."}
+          ],
+          "fix": null
+        }
+      ]
+    },
+    "judge-validity": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "JV1",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/scoring.py", "line": null, "note": "call_judge returns resolved_model and score_transcript persists it per judge; eval/run.py also records resolved_model on each contestant row."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "JV2",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/scoring.py", "line": null, "note": "agreement_within_02() reports a raw within-0.2 agreement rate; it is not chance-corrected (no Krippendorff's alpha / kappa). docs/methodology.md flags this as a known limitation."}
+          ],
+          "fix": "Compute Krippendorff's alpha (or kappa) over the per-judge scores and publish it instead of (or alongside) the within-0.2 rate."
+        },
+        {
+          "id": "JV3",
+          "status": "N/A",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/scoring.py", "line": null, "note": "Judges are neutral-judge-a/b/c; no contestant (rival-coder-7b, rival-mini, acme-fix-1) shares a lab/family with any judge, so the same-lab robustness check does not apply."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "JV4",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "docs/methodology.md", "line": null, "note": "Length bias is named as a known risk but not measured; no length-vs-score regression exists in eval/scoring.py."}
+          ],
+          "fix": "Add a length-vs-score regression over scored answers and report the slope and significance."
+        },
+        {
+          "id": "JV5",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/scoring.py", "line": null, "note": "RUBRIC_CRITERIA = [correctness, safety, clarity] are scored independently per judge and aggregated after scoring — atomic, not one holistic score."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "JV6",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "docs/methodology.md", "line": null, "note": "The scoring section (three judges, atomic criteria, mean-of-criteria then mean-of-judges, fixed-seed scenario bootstrap) traces accurately to eval/scoring.py and eval/aggregate.py."}
+          ],
+          "fix": null
+        }
+      ]
+    },
+    "statistical-honesty": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "ST1",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "bootstrap_ci() runs a fixed-seed (1234) bootstrap and the leaderboard publishes ci_low/ci_high for every model."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "ST2",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "The bootstrap resamples scenario ids (bootstrap_ci draws from list(scenario_scores.keys())), not correlated per-run rows."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "ST3",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "aggregate() computes a plain per-scenario mean but micro-vs-macro is not stated in docs/methodology.md; the choice is undocumented."}
+          ],
+          "fix": "State the aggregation level (micro vs macro) in the methodology and confirm the code matches."
+        },
+        {
+          "id": "ST4",
+          "status": "N/A",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "No pass@k / pass^k reliability-under-repetition metric is reported."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "ST5",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/run.py", "line": null, "note": "random.seed(args.seed) is set and the seed is recorded in the pre-registration; README states judge calls are close-but-not-bit-for-bit deterministic (honest caveat)."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "ST6",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "CIs are computed but the board is published without rank bands and without a minimum-N gate; multiple-comparison risk is unacknowledged in docs."}
+          ],
+          "fix": "Cluster models into rank bands when their CIs overlap and/or gate ranking on a minimum scenario count."
+        }
+      ]
+    },
+    "reproducibility": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "RE1",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "README.md", "line": null, "note": "A single documented run sequence (uv sync; python -m eval.run --seed 7; python -m eval.aggregate) with inputs pinned to data/public/scenarios.json and an explicit 'reproducible for the pinned corpus and seed; not bit-for-bit across provider snapshots' caveat."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "RE2",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "searched: eval/run.py, eval/aggregate.py", "line": null, "note": "No cost cap and no resume/checkpoint. A crash mid-run forces a full re-run. (HARDENING: does not invalidate a completed number.)"}
+          ],
+          "fix": "Add a resume/checkpoint path keyed on completed scenarios and a cost cap that halts before exceeding a budget."
+        },
+        {
+          "id": "RE3",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "pyproject.toml", "line": null, "note": "requires-python == 3.11.* and dependencies pinned with == ; .github/workflows/eval.yml pins setup-python to 3.11."}
+          ],
+          "fix": null
+        }
+      ]
+    },
+    "leaderboard-publishing": {
+      "status": "PARTIAL",
+      "severity": "HARDENING",
+      "sub_checks": [
+        {
+          "id": "LB1",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "exclude_non_contestants() drops NULL_AGENT before aggregation, and tests/test_null_agent.py::test_null_agent_excluded_from_board asserts it never reaches the board."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "LB2",
+          "status": "PRESENT",
+          "severity": "NONE",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "exclude_non_contestants() also filters rows where is_holdout is true before the public aggregate is computed."}
+          ],
+          "fix": null
+        },
+        {
+          "id": "LB3",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "Rows carry a config field but exclude_non_contestants does not filter on it; a smoke / non-default run could enter the public aggregate. Noted in a code comment but not enforced."}
+          ],
+          "fix": "Restrict the public aggregate to config == 'default' at the aggregation entry point."
+        },
+        {
+          "id": "LB4",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "tests/test_null_agent.py", "line": null, "note": "A tripwire test guards the null-agent exclusion, but test_holdout_rows_excluded only asserts the model still appears — it does not assert the holdout score is kept out — and there is no tripwire for non-default configs."}
+          ],
+          "fix": "Add tripwire tests that fail if a holdout row's score or a non-default-config row reaches the published board."
+        },
+        {
+          "id": "LB5",
+          "status": "ABSENT",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "main() writes the leaderboard with no completeness gate; if a model errored and its rows were missing, a partial board would publish silently."}
+          ],
+          "fix": "Add a publish gate reading a failed-model count that blocks or explicitly marks an incomplete board."
+        },
+        {
+          "id": "LB6",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "eval/aggregate.py", "line": null, "note": "The board is written to data/results/leaderboard.json, which is NOT gitignored (only data/results/artifacts|transcripts|traces are), so it is committable. But no CI step commits it and no check guards against a future .gitignore entry shadowing the publish path."}
+          ],
+          "fix": "Add a CI check running git check-ignore over the publish paths (fails if any is ignored), and an explicit publish-commit step."
+        },
+        {
+          "id": "LB7",
+          "status": "PARTIAL",
+          "severity": "HARDENING",
+          "evidence": [
+            {"file": "docs/methodology.md", "line": null, "note": "The methodology promises a public-vs-holdout gap table and a same-lab robustness table, but no pipeline step writes either and the publish step ships neither. README's 'known rough edges' also admits the robustness table is unwired."}
+          ],
+          "fix": "Wire the gap and robustness tables into a pipeline step and the publish output, or remove the promise from the docs."
+        }
+      ]
+    }
+  }
+}
