@@ -62,6 +62,11 @@ Every audit writes a `result.json` conforming to [`schema/result.schema.json`](s
 
 Extracted and upgraded from hardening a private agent benchmark for grant review — the seven dimensions are the attacks that review surfaced. The framework was generalized: no repo-specific paths, and the single-status-per-dimension scoring was split into individually-scoreable sub-checks.
 
+
+## Disclaimer
+
+*This is an independent personal project, not affiliated with, sponsored by, or endorsed by any company. All views expressed are my own.*
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
