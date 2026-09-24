@@ -1,5 +1,7 @@
 # eval-integrity
 
+> **Maintenance mode.** This project is stable and receives security fixes. New features aren't planned, but issues and pull requests are still welcome.
+
 **If you published this benchmark's numbers, would they survive an adversarial reviewer?**
 
 <p align="center">
