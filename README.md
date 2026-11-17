@@ -38,13 +38,15 @@ A benchmark that passes all seven is one whose headline number a skeptical revie
 
 ## Install
 
-Copy the skill directory into your project — that is the whole installation:
+Clone the repo into your project's skills directory. That is the whole installation:
 
 ```bash
-cp -r . your-project/.claude/skills/eval-integrity
+git clone https://github.com/conorbronsdon/eval-integrity your-project/.claude/skills/eval-integrity
 ```
 
-Then run `/eval-integrity` from (or pointed at) a benchmark repo. Or run it straight from a clone: `/eval-integrity /path/to/benchmark`. The directory name becomes the command; `methodology/`, `schema/`, and `fixtures/` ride along and load only when the audit runs.
+Clone to `~/.claude/skills/eval-integrity` instead to make it available in every project. With [skills.sh](https://skills.sh), `npx skills add https://github.com/conorbronsdon/eval-integrity --skill eval-integrity` installs it into the current project (add `-g` for a user-level install).
+
+Then, in Claude Code, run `/eval-integrity` from a benchmark repo, or pass a path: `/eval-integrity /path/to/benchmark`. The directory name becomes the command; `methodology/`, `schema/`, and `fixtures/` ride along and load only when the audit runs.
 
 ## Fixtures — the credibility proof
 
