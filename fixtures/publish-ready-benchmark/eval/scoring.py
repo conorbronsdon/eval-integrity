@@ -55,6 +55,11 @@ def same_lab_recompute(board_fn, rows, lab_prefix="acme"):
         r = dict(r)
         r["scores"] = {j: s for j, s in r["scores"].items()
                        if not j.startswith(lab_prefix)}
+        if not r["scores"]:
+            raise ValueError(f"no judges left after dropping lab {lab_prefix!r}")
+        # The board aggregates r["score"], so it must be re-derived from the
+        # remaining judges — otherwise the recompute returns the full board.
+        r["score"] = sum(s["mean"] for s in r["scores"].values()) / len(r["scores"])
         return r
     full = board_fn(rows)
     dropped = board_fn([drop_same_lab(r) for r in rows])
