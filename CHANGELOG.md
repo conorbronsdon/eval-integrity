@@ -9,6 +9,7 @@ All notable changes to eval-integrity are documented here. This project adheres 
 
 ### Changed
 - Roll-up wording in `SKILL.md` Step 3 and every `methodology/*.md`: "ABSENT when none are" was ambiguous. A literal reading (no sub-check PRESENT) contradicted the fixtures, so the rule now reads "ABSENT only when every applicable sub-check is ABSENT; PARTIAL otherwise". That is the rule all three fixtures already follow.
+- Each methodology file's `## Dimension roll-up` footer set ABSENT from one key sub-check (e.g. "RE1 ABSENT"), contradicting the rule above it. The footers now use the same rule. They also say that the key sub-check being ABSENT makes the dimension INVALIDATING (a severity, not a status).
 
 ### Added
 - `tests/test_expected_results.py` (stdlib only) and a `test` workflow. They check that every fixture scores every methodology sub-check, that dimension statuses follow the roll-up rule, that each dimension's `severity` is the worst severity among its gap sub-checks (or `NONE`), and that verdicts follow gap severities.

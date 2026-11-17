@@ -50,5 +50,6 @@
 
 ## Dimension roll-up
 - **PRESENT:** PR1–PR4 all PRESENT — the run is pinned before it exists and the history is auditable.
-- **PARTIAL:** an artifact exists (PR1 PRESENT or PARTIAL) but pinning or ordering guarantees are incomplete.
-- **ABSENT:** no pre-registration artifact at all (PR1 ABSENT) — score the dimension ABSENT and flag INVALIDATING.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. an artifact exists (PR1 PRESENT or PARTIAL) but pinning or ordering guarantees are incomplete.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. no pre-registration artifact at all (PR1 ABSENT).
+- **Severity:** PR1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.

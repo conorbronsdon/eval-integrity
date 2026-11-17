@@ -60,5 +60,6 @@
 ## Dimension roll-up
 - **N/A:** no holdout exists — this dimension does not apply; the holdout-existence question is contamination CT5.
 - **PRESENT:** HO1–HO5 all PRESENT — the holdout's content has no path out.
-- **PARTIAL:** the holdout exists and some containment is in place, but at least one leak path is open or unenforced.
-- **ABSENT:** artifacts committable and holdout content reachable — score ABSENT, flag INVALIDATING.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. the holdout exists and some containment is in place, but at least one leak path is open or unenforced.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. artifacts committable and holdout content reachable.
+- **Severity:** HO1 or HO2 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.

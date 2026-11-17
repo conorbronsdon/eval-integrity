@@ -69,5 +69,6 @@
 ## Dimension roll-up
 - **N/A:** no LLM judge (deterministic scoring only) — JV1–JV6 are N/A; note it and rely on the other dimensions.
 - **PRESENT:** all applicable sub-checks PRESENT — the judge is pinned, reliable, bias-checked, and truthfully documented.
-- **PARTIAL:** the judge works but at least one calibration/bias control is missing or unenforced.
-- **ABSENT:** judge unpinned and uncalibrated — score ABSENT, flag INVALIDATING (JV1 alone forces this).
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. the judge works but at least one calibration/bias control is missing or unenforced.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. judge unpinned and uncalibrated.
+- **Severity:** JV1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.

@@ -59,5 +59,6 @@
 
 ## Dimension roll-up
 - **PRESENT:** CT1–CT5 all PRESENT (or CT4/CT5 genuinely N/A for a private synthetic corpus, documented as such).
-- **PARTIAL:** a guard or holdout exists but is unenforced, exact-match-only, or unpublished.
-- **ABSENT:** no author/contestant separation (CT1 ABSENT) — score ABSENT, flag INVALIDATING.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. a guard or holdout exists but is unenforced, exact-match-only, or unpublished.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. no author/contestant separation (CT1 ABSENT).
+- **Severity:** CT1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.

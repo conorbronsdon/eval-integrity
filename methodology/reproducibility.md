@@ -41,5 +41,6 @@
 
 ## Dimension roll-up
 - **PRESENT:** RE1–RE3 all PRESENT (or RE2 genuinely N/A for a cheap eval) — an outsider can re-run and reproduce or honestly bound the numbers.
-- **PARTIAL:** a re-run path exists but inputs or environment are not fully pinned.
-- **ABSENT:** no documented re-run path (RE1 ABSENT) — score ABSENT, flag INVALIDATING.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. a re-run path exists but inputs or environment are not fully pinned.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. no documented re-run path (RE1 ABSENT).
+- **Severity:** RE1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.
