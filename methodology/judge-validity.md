@@ -2,7 +2,7 @@
 
 **What this protects against:** the family of dismissals that attack the judge itself — "your judge drifted", "your judge favors its own lab", "your judge just rewards length", "one good sentence inflated the whole score", and "your docs describe scoring the code doesn't do". For an LLM-as-judge eval the judge *is* the instrument; an uncalibrated instrument produces uncalibrated numbers.
 
-**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. If there is no LLM judge (scoring is deterministic — exact match, unit tests, regex), the LLM-specific sub-checks are `N/A`; say so and score only what applies. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT if none are; PARTIAL otherwise.
+**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. If there is no LLM judge (scoring is deterministic — exact match, unit tests, regex), the LLM-specific sub-checks are `N/A`; say so and score only what applies. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT only if every applicable sub-check is ABSENT; PARTIAL otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Read the scoring/judge code under the target's own names ("grader", "evaluator", "rater", "critic") before scoring ABSENT.
 

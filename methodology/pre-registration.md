@@ -2,7 +2,7 @@
 
 **What this protects against:** run cherry-picking. If a maintainer can re-run the eval until the numbers look good, or silently retract an unflattering run, the published score means nothing — it is the best of N hidden attempts, not a measurement. Pre-registration fixes the run's definition (models, corpus, judges, seeds, temperatures) on disk *before* any result exists, so the run that ships is the run that was declared.
 
-**How to score:** each sub-check below is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. The dimension rolls up: `PRESENT` only if every applicable sub-check is PRESENT; `ABSENT` if none are; `PARTIAL` otherwise.
+**How to score:** each sub-check below is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. The dimension rolls up: `PRESENT` only if every applicable sub-check is PRESENT; `ABSENT` only if every applicable sub-check is ABSENT; `PARTIAL` otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** the grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Before scoring any sub-check ABSENT, read the run entry point, the CI workflows, and the governance/methodology docs under whatever names the target uses (a "run manifest", "run config frozen at start", or a committed `config.lock` can all be pre-registration).
 

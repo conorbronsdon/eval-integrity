@@ -16,6 +16,7 @@ DIMENSIONS = {
     "reproducibility": "RE", "leaderboard-publishing": "LB",
 }
 STATUSES = {"PRESENT", "PARTIAL", "ABSENT", "N/A"}
+SEVERITY_RANK = {"NONE": 0, "HARDENING": 1, "INVALIDATING": 2}
 
 
 def rollup(statuses):
@@ -46,6 +47,20 @@ class ExpectedResultTests(unittest.TestCase):
                     statuses = [c["status"] for c in dim["sub_checks"]]
                     self.assertTrue(set(statuses) <= STATUSES)
                     self.assertEqual(dim["status"], rollup(statuses))
+
+    def test_dimension_severity_is_the_worst_gap_severity(self):
+        # schema/result.schema.json: "Worst severity across the dimension's
+        # sub-check gaps"; NONE when the dimension has no gap.
+        for path in EXPECTED:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            for name, dim in data["dimensions"].items():
+                gaps = [
+                    c["severity"] for c in dim["sub_checks"]
+                    if c["status"] in {"PARTIAL", "ABSENT"}
+                ]
+                expected = max(gaps, key=SEVERITY_RANK.__getitem__) if gaps else "NONE"
+                with self.subTest(fixture=path.parent.name, dimension=name):
+                    self.assertEqual(dim["severity"], expected)
 
     def test_every_methodology_sub_check_is_scored(self):
         for path in EXPECTED:

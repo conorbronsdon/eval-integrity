@@ -2,7 +2,7 @@
 
 **What this protects against:** the "your private set isn't private — it's in your CI logs" dismissal. Contamination (that dimension) establishes that a holdout *exists*; hygiene establishes that its *content* cannot escape. A holdout leaks the moment its scenarios, ground truth, or per-scenario scores land in a committed file, a public CI artifact, an error message, or a sample in the docs. Once leaked, the next model can train on it and the overfitting tripwire is dead.
 
-**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. If the benchmark has no holdout at all, this whole dimension is `N/A` (the holdout question lives in contamination CT5). Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT if none are; PARTIAL otherwise.
+**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. If the benchmark has no holdout at all, this whole dimension is `N/A` (the holdout question lives in contamination CT5). Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT only if every applicable sub-check is ABSENT; PARTIAL otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. The target may call the holdout a "sequestered split", "private eval", or "held-out set" — read `.gitignore`, the CI workflows, and the results files under those names before scoring ABSENT.
 

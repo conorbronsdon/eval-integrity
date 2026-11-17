@@ -2,7 +2,7 @@
 
 **What this protects against:** two dismissals. First, "a do-nothing agent ranks mid-board" / "you published your holdout" — the public leaderboard including rows that distort it (null-agent baselines, holdout rows, non-default configs) when they should be excluded. Second, "the table your docs promise is never actually written" — a publish path that dies silently, or a documented surface no pipeline commits. Exclusions stated as intent are not exclusions; they must be enforced by tests, and the publish step must actually ship what the docs describe.
 
-**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT if none are; PARTIAL otherwise.
+**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT only if every applicable sub-check is ABSENT; PARTIAL otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Read the aggregation code, the publish/CI workflow, and the docs' description of the board under the target's own names ("scoreboard", "results table", "rankings") before scoring ABSENT.
 

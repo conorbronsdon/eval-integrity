@@ -5,10 +5,13 @@ All notable changes to eval-integrity are documented here. This project adheres 
 ## Unreleased
 
 ### Fixed
-- `fixtures/weak-benchmark/expected-result.json`: LB7 was PARTIAL while the leaderboard-publishing dimension was ABSENT, which breaks the Step 3 roll-up rule. The evidence (a hand-maintained README table the pipeline never produces) matches the methodology's ABSENT definition, so LB7 is now ABSENT. The verdict is unchanged.
+- `fixtures/weak-benchmark/expected-result.json`: LB7 was PARTIAL while the leaderboard-publishing dimension was ABSENT. That is inconsistent with the roll-up the other fixtures follow (e.g. weak `reproducibility` is PARTIAL with sub-checks PARTIAL/ABSENT/ABSENT). The evidence (a hand-maintained README table the pipeline never produces) matches the methodology's ABSENT definition, so LB7 is now ABSENT. The verdict is unchanged.
+
+### Changed
+- Roll-up wording in `SKILL.md` Step 3 and every `methodology/*.md`: "ABSENT when none are" was ambiguous. A literal reading (no sub-check PRESENT) contradicted the fixtures, so the rule now reads "ABSENT only when every applicable sub-check is ABSENT; PARTIAL otherwise". That is the rule all three fixtures already follow.
 
 ### Added
-- `tests/test_expected_results.py` (stdlib only) and a `test` workflow. They check that every fixture scores every methodology sub-check, that dimension statuses follow the roll-up rule, and that verdicts follow gap severities.
+- `tests/test_expected_results.py` (stdlib only) and a `test` workflow. They check that every fixture scores every methodology sub-check, that dimension statuses follow the roll-up rule, that each dimension's `severity` is the worst severity among its gap sub-checks (or `NONE`), and that verdicts follow gap severities.
 
 ## [0.1.0] — 2026-07-13
 
