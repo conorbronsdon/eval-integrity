@@ -78,5 +78,5 @@
 ## Dimension roll-up
 - **PRESENT:** all applicable sub-checks PRESENT — distorting rows are excluded and tested-out, and the publish path ships exactly the surfaces the docs promise.
 - **PARTIAL:** any other mix of applicable sub-checks, e.g. exclusions or publish wiring exist but at least one is untested, unenforced, or unwired.
-- **ABSENT:** every applicable sub-check is ABSENT, e.g. no null-agent baseline, no exclusion enforcement and no publish wiring: LB1–LB7 all ABSENT.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. no null-agent baseline, no exclusion enforcement and no publish wiring: every applicable LB sub-check ABSENT.
 - **Severity:** LB1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under LB1's own severity rule, so the dimension is INVALIDATING. LB4 ABSENT is INVALIDATING only when an excluded row can reach the board; with nothing excluded it is HARDENING, as in the weak fixture.
