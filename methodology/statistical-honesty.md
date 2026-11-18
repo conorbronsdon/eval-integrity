@@ -69,5 +69,5 @@
 ## Dimension roll-up
 - **PRESENT:** all applicable sub-checks PRESENT — uncertainty is quantified, aggregation is stated, and reliability metrics are unambiguous.
 - **PARTIAL:** any other mix of applicable sub-checks, e.g. some uncertainty reporting exists but at least one gap (unseeded CIs, unstated aggregation, unacknowledged multiplicity) remains.
-- **ABSENT:** every applicable sub-check is ABSENT, e.g. point estimates with no intervals (ST1 ABSENT).
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. point estimates with no intervals and nothing else reported: every applicable ST sub-check ABSENT.
 - **Severity:** ST1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but under ST1's severity rule it makes the dimension INVALIDATING when the ranking is the headline.
