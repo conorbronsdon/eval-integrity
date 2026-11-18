@@ -2,7 +2,7 @@
 
 **What this protects against:** run cherry-picking. If a maintainer can re-run the eval until the numbers look good, or silently retract an unflattering run, the published score means nothing — it is the best of N hidden attempts, not a measurement. Pre-registration fixes the run's definition (models, corpus, judges, seeds, temperatures) on disk *before* any result exists, so the run that ships is the run that was declared.
 
-**How to score:** each sub-check below is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. The dimension rolls up: `PRESENT` only if every applicable sub-check is PRESENT; `ABSENT` if none are; `PARTIAL` otherwise.
+**How to score:** each sub-check below is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. The dimension rolls up: `PRESENT` only if every applicable sub-check is PRESENT; `ABSENT` only if every applicable sub-check is ABSENT; `PARTIAL` otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** the grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Before scoring any sub-check ABSENT, read the run entry point, the CI workflows, and the governance/methodology docs under whatever names the target uses (a "run manifest", "run config frozen at start", or a committed `config.lock` can all be pre-registration).
 
@@ -50,5 +50,6 @@
 
 ## Dimension roll-up
 - **PRESENT:** PR1–PR4 all PRESENT — the run is pinned before it exists and the history is auditable.
-- **PARTIAL:** an artifact exists (PR1 PRESENT or PARTIAL) but pinning or ordering guarantees are incomplete.
-- **ABSENT:** no pre-registration artifact at all (PR1 ABSENT) — score the dimension ABSENT and flag INVALIDATING.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. an artifact exists (PR1 PRESENT or PARTIAL) but pinning or ordering guarantees are incomplete.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. no artifact, no hash, no ordering and no policy: every applicable PR sub-check ABSENT.
+- **Severity:** PR1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.

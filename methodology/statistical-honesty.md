@@ -2,7 +2,7 @@
 
 **What this protects against:** the "that ranking is just noise" dismissal. A benchmark that reports point estimates with no uncertainty, conflates different reliability metrics, or hides that its ranking flips under resampling is selling noise as signal. Honest statistics let a reader see how much of the gap between models is real.
 
-**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT if none are; PARTIAL otherwise.
+**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT only if every applicable sub-check is ABSENT; PARTIAL otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Read the aggregation/reporting code under the target's own names ("intervals", "error bars", "resample", "spread") before scoring ABSENT.
 
@@ -68,5 +68,6 @@
 
 ## Dimension roll-up
 - **PRESENT:** all applicable sub-checks PRESENT — uncertainty is quantified, aggregation is stated, and reliability metrics are unambiguous.
-- **PARTIAL:** some uncertainty reporting exists but at least one gap (unseeded CIs, unstated aggregation, unacknowledged multiplicity) remains.
-- **ABSENT:** point estimates with no intervals (ST1 ABSENT) — score ABSENT, flag INVALIDATING when the ranking is the headline.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. some uncertainty reporting exists but at least one gap (unseeded CIs, unstated aggregation, unacknowledged multiplicity) remains.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. point estimates with no intervals and nothing else reported: every applicable ST sub-check ABSENT.
+- **Severity:** ST1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but under ST1's severity rule it makes the dimension INVALIDATING when the ranking is the headline.

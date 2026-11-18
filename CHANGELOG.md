@@ -2,6 +2,18 @@
 
 All notable changes to eval-integrity are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- `fixtures/weak-benchmark/expected-result.json`: LB7 was PARTIAL while the leaderboard-publishing dimension was ABSENT. That is inconsistent with the roll-up the other fixtures follow (e.g. weak `reproducibility` is PARTIAL with sub-checks PARTIAL/ABSENT/ABSENT). The evidence (a hand-maintained README table the pipeline never produces) matches the methodology's ABSENT definition, so LB7 is now ABSENT. The verdict is unchanged.
+
+### Changed
+- Roll-up wording in `SKILL.md` Step 3 and every `methodology/*.md`: "ABSENT when none are" was ambiguous. A literal reading (no sub-check PRESENT) contradicted the fixtures, so the rule now reads "ABSENT only when every applicable sub-check is ABSENT; PARTIAL otherwise". That is the rule all three fixtures follow once weak LB7 is fixed (above).
+- Each methodology file's `## Dimension roll-up` footer set ABSENT from one key sub-check (e.g. "RE1 ABSENT"), contradicting the rule above it. The footers now use the same rule. They also say that the key sub-check being ABSENT makes the dimension INVALIDATING (a severity, not a status); LB4 only when an excluded row can reach the board.
+
+### Added
+- `tests/test_expected_results.py` (stdlib only) and a `test` workflow. They check that every fixture scores every methodology sub-check, that dimension statuses follow the roll-up rule, that each dimension's `severity` is the worst severity among its gap sub-checks (or `NONE`), and that verdicts follow gap severities.
+
 ## [0.1.0] — 2026-07-13
 
 Initial release. Extracted and upgraded from a benchmark-credibility auditor that lived in a larger skills collection.

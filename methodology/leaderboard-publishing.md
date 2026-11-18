@@ -2,7 +2,7 @@
 
 **What this protects against:** two dismissals. First, "a do-nothing agent ranks mid-board" / "you published your holdout" — the public leaderboard including rows that distort it (null-agent baselines, holdout rows, non-default configs) when they should be excluded. Second, "the table your docs promise is never actually written" — a publish path that dies silently, or a documented surface no pipeline commits. Exclusions stated as intent are not exclusions; they must be enforced by tests, and the publish step must actually ship what the docs describe.
 
-**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT if none are; PARTIAL otherwise.
+**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT only if every applicable sub-check is ABSENT; PARTIAL otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Read the aggregation code, the publish/CI workflow, and the docs' description of the board under the target's own names ("scoreboard", "results table", "rankings") before scoring ABSENT.
 
@@ -77,5 +77,6 @@
 
 ## Dimension roll-up
 - **PRESENT:** all applicable sub-checks PRESENT — distorting rows are excluded and tested-out, and the publish path ships exactly the surfaces the docs promise.
-- **PARTIAL:** exclusions or publish wiring exist but at least one is untested, unenforced, or unwired.
-- **ABSENT:** no null-agent baseline and no exclusion enforcement (LB1/LB4 ABSENT) — score ABSENT, flag INVALIDATING.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. exclusions or publish wiring exist but at least one is untested, unenforced, or unwired.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. no null-agent baseline, no exclusion enforcement and no publish wiring: every applicable LB sub-check ABSENT.
+- **Severity:** LB1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under LB1's own severity rule, so the dimension is INVALIDATING. LB4 ABSENT is INVALIDATING only when an excluded row can reach the board; with nothing excluded it is HARDENING, as in the weak fixture.

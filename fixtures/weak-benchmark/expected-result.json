@@ -331,7 +331,7 @@
         },
         {
           "id": "LB7",
-          "status": "PARTIAL",
+          "status": "ABSENT",
           "severity": "HARDENING",
           "evidence": [
             {"file": "README.md", "line": null, "note": "The README shows a ranked leaderboard table (Rank/Agent/Score), but run_eval.py writes only a flat {model: score} dict to data/leaderboard.json with no ranks. The rendered table is hand-maintained, not produced by the pipeline."}

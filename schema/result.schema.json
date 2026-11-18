@@ -119,7 +119,7 @@
         },
         "sub_checks": {
           "type": "array",
-          "description": "The individually-scored sub-checks. A dimension is PRESENT only when every applicable sub-check is PRESENT; PARTIAL when some are; ABSENT when none are.",
+          "description": "The individually-scored sub-checks. A dimension is PRESENT only when every applicable sub-check is PRESENT; ABSENT only when every applicable sub-check is ABSENT; PARTIAL otherwise.",
           "minItems": 1,
           "items": { "$ref": "#/definitions/sub_check" }
         }

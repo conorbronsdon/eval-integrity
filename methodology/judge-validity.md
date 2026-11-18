@@ -2,7 +2,7 @@
 
 **What this protects against:** the family of dismissals that attack the judge itself — "your judge drifted", "your judge favors its own lab", "your judge just rewards length", "one good sentence inflated the whole score", and "your docs describe scoring the code doesn't do". For an LLM-as-judge eval the judge *is* the instrument; an uncalibrated instrument produces uncalibrated numbers.
 
-**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. If there is no LLM judge (scoring is deterministic — exact match, unit tests, regex), the LLM-specific sub-checks are `N/A`; say so and score only what applies. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT if none are; PARTIAL otherwise.
+**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. If there is no LLM judge (scoring is deterministic — exact match, unit tests, regex), the LLM-specific sub-checks are `N/A`; say so and score only what applies. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT only if every applicable sub-check is ABSENT; PARTIAL otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Read the scoring/judge code under the target's own names ("grader", "evaluator", "rater", "critic") before scoring ABSENT.
 
@@ -69,5 +69,6 @@
 ## Dimension roll-up
 - **N/A:** no LLM judge (deterministic scoring only) — JV1–JV6 are N/A; note it and rely on the other dimensions.
 - **PRESENT:** all applicable sub-checks PRESENT — the judge is pinned, reliable, bias-checked, and truthfully documented.
-- **PARTIAL:** the judge works but at least one calibration/bias control is missing or unenforced.
-- **ABSENT:** judge unpinned and uncalibrated — score ABSENT, flag INVALIDATING (JV1 alone forces this).
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. the judge works but at least one calibration/bias control is missing or unenforced.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. judge unpinned and uncalibrated.
+- **Severity:** JV1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.

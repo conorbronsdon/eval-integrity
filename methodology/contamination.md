@@ -2,7 +2,7 @@
 
 **What this protects against:** the "the author's model graded the author's exam" dismissal, and the slower failure where a public corpus leaks into a contestant's training data and inflates its score. A model that helped build the scenarios (or shares weights with one that did) has an unfair prior; a corpus that is public on the internet may already be memorized. Both make a high score meaningless.
 
-**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT if none are; PARTIAL otherwise.
+**How to score:** each sub-check is scored independently — `PRESENT` / `PARTIAL` / `ABSENT` / `N/A`. Dimension rolls up: PRESENT only if every applicable sub-check is PRESENT; ABSENT only if every applicable sub-check is ABSENT; PARTIAL otherwise (including a mix of PARTIAL and ABSENT).
 
 **Concept-search rule:** grep patterns are one benchmark's vocabulary. A grep miss is weak evidence of ABSENT. Read the data-generation code and the contestant list under the target's own names ("panel", "candidates", "systems under test", "generators") before scoring ABSENT.
 
@@ -59,5 +59,6 @@
 
 ## Dimension roll-up
 - **PRESENT:** CT1–CT5 all PRESENT (or CT4/CT5 genuinely N/A for a private synthetic corpus, documented as such).
-- **PARTIAL:** a guard or holdout exists but is unenforced, exact-match-only, or unpublished.
-- **ABSENT:** no author/contestant separation (CT1 ABSENT) — score ABSENT, flag INVALIDATING.
+- **PARTIAL:** any other mix of applicable sub-checks, e.g. a guard or holdout exists but is unenforced, exact-match-only, or unpublished.
+- **ABSENT:** every applicable sub-check is ABSENT, e.g. no author/contestant separation and no guard, holdout or published check: every applicable CT sub-check ABSENT.
+- **Severity:** CT1 ABSENT on its own does not make the dimension ABSENT (with any other sub-check PRESENT or PARTIAL the dimension is PARTIAL), but it is an INVALIDATING gap under that sub-check's own severity rule, so the dimension is INVALIDATING.

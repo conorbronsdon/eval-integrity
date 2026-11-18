@@ -83,7 +83,7 @@ Score each **sub-check** (not just each dimension) independently, then roll sub-
 - **ABSENT** — no evidence in code, tests, or docs.
 - **N/A** — the sub-check does not apply (e.g. judge-validity sub-checks on a benchmark with no LLM judge).
 
-Roll-up: a dimension is **PRESENT** only when every applicable sub-check is PRESENT; **ABSENT** when none are; **PARTIAL** otherwise. **N/A** when every sub-check is N/A.
+Roll-up: a dimension is **PRESENT** only when every applicable sub-check is PRESENT; **ABSENT** only when every applicable sub-check is ABSENT; **PARTIAL** otherwise, including any mix of PARTIAL and ABSENT with no PRESENT. **N/A** when every sub-check is N/A.
 
 **Evidence is mandatory.** A rating with no `file:line` (or an explicit "searched X, Y, Z — found nothing") is not a finding, it's a guess. Reject it.
 
